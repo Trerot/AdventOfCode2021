@@ -27,3 +27,26 @@ $forward.value.foreach({
     })
 
 ($downsum - $upsum) * $forwardsum | Set-Clipboard
+
+
+# task 2
+$aim = 0
+$forward = 0
+$depth = 0
+
+foreach ($item in $stuffconv) {
+    switch ($item.direction) {
+        down { 
+            $aim = $aim + [int]$item.value 
+        }
+        up { 
+            $aim = $aim - [int]$item.value 
+        }
+        forward {
+            $forward = $forward + [int]$item.value
+            $depth = $depth + ([int]$item.value * $aim)
+        }
+        Default {}
+    }
+}
+$forward*$depth | Set-Clipboard
