@@ -55,89 +55,65 @@ $answer | Set-Clipboard
 
 
 #task 2
-
-
 $stuff = get-puzzleinput -day 3 -year 2021
 $stuffconv = $stuff | ConvertFrom-Csv -Header binarynum
-$array = $stuffconv.binarynum
-$filter = New-Object -TypeName System.Collections.ArrayList
 
-function get-numbercount {
-    param (
-        $array = $array
-    )
-    process {
-        $range.foreach({
-                New-Variable -Name "0count_$_" -Value 0 -Force
-                New-Variable -Name "1count_$_" -Value 0 -Force
-            })
-    
+$range = 0..11
+$array = $stuffconv.binarynum
+$range.foreach({
+        $rangenum = $_
+        $one = New-Object -TypeName System.Collections.ArrayList
+        $zero = New-Object -TypeName System.Collections.ArrayList
         $array.foreach({
                 $item = $_
-                $range.foreach({
-                        $rangenum = $_
-                        switch ($item[$rangenum]) {
-                            "0" { Set-Variable -name "0count_$rangenum" -Value ((get-variable -name  "0count_$rangenum").Value + 1) }
-                            "1" { Set-Variable -name "1count_$rangenum" -Value ((get-variable -name  "1count_$rangenum").Value + 1) }
-                            Default {}
-                        }
-                    })
+                $num = $_[$rangenum]
+                switch ($num) {
+                    0 { [void]$zero.add($item) }
+                    1 { [void]$one.add($item) }
+                }
             })
-
-        $global:zero = get-variable -name 0count* | sort-object { [int]($_.name -split "-")[1] }
-        $Global:one = get-variable -name 1count* | sort-object { [int]($_.name -split "-")[1] }
-    }
-}
-
-function new-arraything {
-    param (
-        $array,
-        $num = 0,
-        [switch]$onsies,
-        [switch]$zerosies
-    )
-    get-numbercount -array $array
-    if($onsies){
-        if ($one.where({ $_.name -eq "1count_$num" }).value -ge $zero.where({ $_.name -eq "0count_$num" }).value ) {
-            [void]$global:filter.add("1")
-            $global:array = $array.where({ $_ -like "$(-join $filter)*" })
+        if ($one.count -ge $zero.Count) {
+            $array = $one
         }
         else {
-            [void]$global:filter.add("0")
-            $global:array = $array.where({ $_ -like "$(-join $filter)*" })
+            $array = $zero
         }
-    }
-    if($zerosies){
-        if ($zero.where({ $_.name -eq "0count_$num" }).value  -ge $one.where({ $_.name -eq "1count_$num" }).value  ) {
-            [void]$global:filter.add("0")
-            $global:array = $array.where({ $_ -like "$(-join $filter)*" })
+        if ($array.count -eq 1) {
+            $bonusfirst = $array
+        }
+    })
+$first = $array
+#done this, now other way around. fewest bits.
+$range = 0..11
+$array = $stuffconv.binarynum
+$range.foreach({
+        $rangenum = $_
+        $one = New-Object -TypeName System.Collections.ArrayList
+        $zero = New-Object -TypeName System.Collections.ArrayList
+        $array.foreach({
+                $item = $_
+                $num = $_[$rangenum]
+                switch ($num) {
+                    0 { [void]$zero.add($item) }
+                    1 { [void]$one.add($item) }
+                }
+            })
+        if ($zero.count -le $one.Count) {
+            $array = $zero
         }
         else {
-            [void]$global:filter.add("1")
-            $global:array = $array.where({ $_ -like "$(-join $filter)*" })
+            $array = $one
         }
-    }
-
+        if ($array.count -eq 1) {
+            $bonussecond = $array
+        }
+    })
+$second = $array
+if ($second.count -eq 0 ) {
+    $second = $bonussecond
 }
-
-
-
-
-
-
-
-$array = $stuffconv.binarynum
-$filter = New-Object -TypeName System.Collections.ArrayList
-(0..11).foreach({
-new-arraything -array $array -num $_ -zerosies
-})
-$little = $array
-
-$array = $stuffconv.binarynum
-$filter = New-Object -TypeName System.Collections.ArrayList
-(0..11).foreach({
-new-arraything -array $array -num $_ -onsies
-})
-$big = $array
-$big
-$little
+if ($first.count -eq 0 ) {
+    $first = $bonusfirst
+}
+$answer = ([convert]::toint32($first, 2)) * ([convert]::toint32($second, 2))
+$answer
