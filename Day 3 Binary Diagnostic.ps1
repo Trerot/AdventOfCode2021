@@ -89,33 +89,6 @@ function get-numbercount {
     }
 }
 
-
-function new-arraything {
-    param (
-        $array,
-        $num = 0
-    )
-    get-numbercount -array $array
-    
-    if ($one.where({ $_.name -eq "1count_$num" }).value -ge $zero.where({ $_.name -eq "0count_$num" }).value ) {
-        [void]$global:filter.add("1")
-        $global:array = $array.where({ $_ -like "$(-join $filter)*" })
-    }
-    else {
-        [void]$global:filter.add("0")
-        $global:array = $array.where({ $_ -like "$(-join $filter)*" })
-    }
-}
-
-
-$array = $stuffconv.binarynum
-$filter = New-Object -TypeName System.Collections.ArrayList
-(0..11).foreach({
-new-arraything -array $array -num $_ -zerosies
-})
-$little = $array
-$little
-
 function new-arraything {
     param (
         $array,
@@ -148,10 +121,23 @@ function new-arraything {
 }
 
 
+
+
+
+
+
 $array = $stuffconv.binarynum
 $filter = New-Object -TypeName System.Collections.ArrayList
 (0..11).foreach({
-new-arraything -array $array -num $_
+new-arraything -array $array -num $_ -zerosies
 })
 $little = $array
+
+$array = $stuffconv.binarynum
+$filter = New-Object -TypeName System.Collections.ArrayList
+(0..11).foreach({
+new-arraything -array $array -num $_ -onsies
+})
+$big = $array
+$big
 $little
