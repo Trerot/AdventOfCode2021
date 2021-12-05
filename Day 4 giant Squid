@@ -1,6 +1,5 @@
 $stuff = get-content $env:temp\day4.txt
 
-
 $bingonums = $stuff[0] -split ","
 
 $bingotables = $stuff[1..$stuff.Length]
@@ -17,27 +16,21 @@ $bingocomma.foreach({
 
         }
         else {
-            (Get-Variable -name "table_$counter").value.add($($item | ConvertFrom-Csv -Delimiter "," -Header "row_1", "row_2", "row_3", "row_4", "row_5") )
+            ($item -split ",").foreach({(Get-Variable -name "table_$counter").value.add($_)})
+            #ConvertFrom-Csv -Delimiter "," -Header "row_1", "row_2", "row_3", "row_4", "row_5") )
+
         }
 
     })
 $alltables = Get-Variable -name "table_*"
 
 foreach ($num in $bingonums) {
-    #apply the number to all locations.
-    foreach ($table in $alltables) {
-        #this does it. but it also ruins the table. 
-        $table -replace $num, 1000
-        $converted = $table -replace $num, 1000 -replace "@{" -replace "}" -replace "row_1=" -replace "row_2=" -replace "row_3=" -replace "row_4=" -replace "row_5=" | 
-        ConvertFrom-Csv -Header row_1, row_2, row_3, row_4, row_5 -Delimiter ";"
-        
+    if($num.Length -lt 2){
+        #this is for single digit numbers
+        $alltables
     }
+    else {
+        #this is for non single digit numbers
 
-    if (<#someone gets bingo#>) {
-        save the winning table and the winning num
-        break
     }
-
-    #repeat
-    
 }
