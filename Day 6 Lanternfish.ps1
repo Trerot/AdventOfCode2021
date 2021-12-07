@@ -1,53 +1,59 @@
-$stuff = get-content $env:TEMP\day6.txt
-$temparray = New-Object -TypeName System.Collections.ArrayList
-($stuff -split ",").ForEach({ $stuffarray.add([int]$_) })
-
-
+$stuff = get-puzzleinput -day 6 -year 2021
+#create initial array
+$stuffarraylist = New-Object -TypeName System.Collections.ArrayList
+($stuff.split(',') | ForEach-Object { Invoke-Expression $_ }).foreach({ [void]$stuffarraylist.add([int64]$_) })
 
 $counter = 0
 while ($counter -lt 80) {
-    $counter ++
-    $stuffarray.ForEach({
+    $newarraylist = New-Object -TypeName System.Collections.ArrayList
+    $stuffarraylist.foreach({
             switch ($_) {
-                0 { 
-                    [void]$temparray.add(6)
-                    [void]$temparray.add(8)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_))
+                0 {
+                    [void]$newarraylist.add(6)
+                    [void]$newarraylist.add(8)
                 }
-                1 {
-                    [void]$temparray.add(0)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_))
-                }
-                2 {
-                    [void]$temparray.add(1) 
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_))
-                }
-                3 {
-                    [void]$temparray.add(2)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_)) 
-                }
-                4 {
-                    [void]$temparray.add(3)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_)) 
-                }
-                5 {
-                    [void]$temparray.add(4)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_)) 
-                }
-                6 {
-                    [void]$temparray.add(5)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_)) 
-                }
-                7 {
-                    [void]$temparray.add(6)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_)) 
-                }
-                8 {
-                    [void]$temparray.add(7)
-                    $temparray.Remove([array]::IndexOf($stuffarray, $_)) 
-                }
+                Default { [void]$newarraylist.add($_ - 1) }
             }
         })
-
+    $stuffarraylist = $newarraylist
+    $counter ++
+    $counter
 }
 
+
+
+#task 2
+
+#creating the counters
+$stuff = get-puzzleinput -day 6 -year 2021
+#create initial array
+$stuffarraylist = New-Object -TypeName System.Collections.ArrayList
+($stuff.split(',') | ForEach-Object { Invoke-Expression $_ }).foreach({ [void]$stuffarraylist.add([int64]$_) })
+$stuffarraylist.foreach({
+        switch ($_) {
+            0 { $zero ++ }
+            1 { $one ++ }
+            2 { $two ++ }
+            3 { $three ++ }
+            4 { $four ++ }
+            5 { $five ++ }
+            6 { $six ++ }
+            7 { $seven ++ }
+            8 { $eight ++ }
+        } })
+$counter = 0
+while ($counter -lt 256) {
+    $tempzero = $zero
+    $zero = $one
+    $one = $two
+    $two = $three
+    $three = $four
+    $four = $five
+    $five = $six
+    $six = $seven + $tempzero
+    $seven = $eight
+    $eight = $tempzero
+    $counter ++
+    $counter
+}
+$zero + $one + $two + $three + $four + $five + $six + $seven + $eight
