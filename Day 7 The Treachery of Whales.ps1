@@ -1,52 +1,64 @@
-get-puzzleinput -day 7 -year 2021 | set-content $env:TEMP\day7.txt
-$stuff = get-content $env:TEMP\day7.txt
-$stuffarray = New-Object -TypeName System.Collections.ArrayList
-($stuff -split ",").ForEach({ $stuffarray.add([int]$_) })
 
-$measure = ($stuffarray | Measure-Object -AllStats)
-$rounddeviation = [math]::round($measure.StandardDeviation)
+$test = get-puzzleinput -day 7 -year 2021
+$crabs = New-Object -TypeName System.Collections.ArrayList
+($test -split ",").foreach({ $crabs.add($_) })
 
-$calcarray = New-Object -TypeName System.Collections.ArrayList
-foreach ($item in $stuffarray) {
-    if ($item -ge $rounddeviation) {
-        $fuel = $item - $rounddeviation
-        $calcarray.Add($fuel)
-    }
-    if ($item -lt $rounddeviation) {
-        $fuel = $rounddeviation - $item
-        $calcarray.Add($fuel)
-    }
-}
-$stats = $calcarray | Measure-Object -AllStats
-$answer = $stats.sum
-
-#above does not work.
-
-# 350851 is to high
-# 335584 is wrong
-
-
-#this works for the commented out example array and gives me the correct answer. it just doesnt work for the larger data set.
-$crabs = get-content $env:TEMP\day7.txt
-#$crabs = "16,1,2,0,4,2,7,1,2,14"
-$crabarray = New-Object -TypeName System.Collections.ArrayList
-($crabs -split ",").ForEach({ [void]$crabarray.add([int]$_) })
+$crabarray = $crabs
 $measurecrabs = ($crabarray | Measure-Object -AllStats)
 $crabrange = $measurecrabs.Minimum..$measurecrabs.Maximum
 
 $sumarray = New-Object -TypeName System.Collections.ArrayList
 $crabrange.foreach({
-    $crabnum = [int]$_
-    $sum = 0
-    $crabarray.ForEach({
-        $num = [int]$_
-        if($crabnum -ge $num){
-            $sum = $sum + $crabnum - $num
-        }
-        if($num -gt $crabnum){
-            $sum = $sum + $num -$crabnum
-        }
+        $crabnum = [int]$_
+        $sum = 0
+        $crabarray.ForEach({
+                $num = [int]$_
+                if ($crabnum -ge $num) {
+                    $sum = $sum + $crabnum - $num
+                }
+                if ($num -gt $crabnum) {
+                    $sum = $sum + $num - $crabnum
+                }
+            })
+        $sumarray.add($sum)
     })
+$sumarray.sort()
+$answer = $sumarray[0]
+
+#task 2 
+# had to do some stuff because above method was to slow.
+$test = get-puzzleinput -day 7 -year 2021
+$crabs = New-Object -TypeName System.Collections.ArrayList
+($test -split ",").foreach({ $crabs.add([int]$_) })
+$test.count
+$measurement = $crabs | Measure-Object -AllStats
+$range = $measurement.Minimum..$measurement.Maximum
+$range.foreach({
+        New-Variable -name "counter_$_" -Value $([int64]0) -Force
+    })
+$crabs.sort()
+
+$crabs.ForEach({
+        $item = $_
+        Set-Variable -Name "counter_$item" -Value $((Get-Variable -name "counter_$item" -ValueOnly) + 1)
+    })
+$counterhash = @{}
+$arraylist = New-Object -TypeName System.Collections.ArrayList
+(get-variable -Name counter_*).foreach({
+        $key = [int]($_.name -replace "counter_", "")
+        $value = $_.value
+        $counterhash.Add($key, $value)
+    })
+$sumarray = New-Object -TypeName System.Collections.ArrayList
+$range.foreach({
+    $crabnum = [Int64]$_
+    $sum = [int64]0
+    $counterhash.Keys.ForEach({
+        $crabkey = $_
+        $crabamount = $counterhash.$_
+        $distance = [math]::abs($crabnum - $crabkey)
+        $sum = $sum + (($distance*($distance+1)/2)*$crabamount)
+        })
     $sumarray.add($sum)
 })
 $sumarray.sort()
