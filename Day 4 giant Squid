@@ -34,3 +34,18 @@ foreach ($num in $bingonums) {
 
     }
 }
+
+#stuff from naive. 
+
+$x = @([pscustomobject]@{ row_1 = 5; row_2 = 10 },[pscustomobject]@{ row_1 = 5; row_2 = 11 })
+$x |% { Set-Variable -Name y -Value $_; $_ } |% PsObject |% Properties |? Value -eq 5 |% { $y.$($_.Name) = 6 }
+tee-object stored the whole array ... bummer
+this is somewhat the same, but more 'readable' by a not-naivE view 😉
+$x | ForEach-Object {
+    $y = $_;
+    $y.PsObject.Properties 
+        | Where-Object Value -eq 5 
+        | ForEach-Object { 
+            $y.$($_.Name) = 6
+        }
+}
